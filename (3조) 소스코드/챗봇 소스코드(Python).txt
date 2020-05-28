@@ -1,0 +1,156 @@
+import telegram
+import time
+from telegram.ext import Updater, MessageHandler, Filters
+
+updater = Updater(token = '1007588977:AAGZEigh8duaObrLcxMnl4D2iKGUfpuGrUg')
+dispatcher = updater.dispatcher
+updater.start_polling()
+
+api_key = '1007588977:AAGZEigh8duaObrLcxMnl4D2iKGUfpuGrUg'
+bot = telegram.Bot(token = api_key)
+chat_id = 881284357
+
+Msg1 = 0
+Msg2 = 0
+Msg3 = 0
+Msg4 = 0
+
+Mote_1 = 0
+Mote_2 = 0
+Mote_3 = 0
+Mote_4 = 0
+
+def Info() :
+    global Msg1
+    global Msg2
+    global Msg3
+    global Msg4
+
+    global Mote_1
+    global Mote_2
+    global Mote_3
+    global Mote_4
+
+    
+    
+    f1 = open('Error_Info(Mote_1).txt','r')
+    f2 = open('Error_Info(Mote_2).txt','r')
+    f3 = open('Error_Info(Mote_3).txt','r')
+    f4 = open('Error_Info(Mote_4).txt','r')
+    
+    Msg1 = f1.read()
+    Msg2 = f2.read()
+    Msg3 = f3.read()
+    Msg4 = f4.read()
+
+    if (Mote_1 != Msg1) :
+        if Msg1 == "UnConnect 10\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(앞바퀴)의 통신이 끊어졌습니다.')
+        elif Msg1 == "Connect 10\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(앞바퀴)의 통신이 연결되었습니다.')
+
+    if (Mote_2 != Msg2) :
+        if Msg2 == "UnConnect 11\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(뒷바퀴)의 통신이 끊어졌습니다.')
+        elif Msg2 == "Connect 11\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(뒷바퀴)의 통신이 연결되었습니다.')
+
+    if (Mote_3 != Msg3) :
+        if Msg3 == "UnConnect 12\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(핸들)의 통신이 끊어졌습니다.')
+        elif Msg3 == "Connect 12\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(핸들)의 통신이 연결되었습니다.')
+
+    if (Mote_4 != Msg4) :
+        if Msg4 == "UnConnect 13\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(안장)의 통신이 끊어졌습니다.')
+        elif Msg4 == "Connect 13\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(안장)의 통신이 연결되었습니다.')
+
+
+    time.sleep(0.5)
+    
+    f1 = open('Error_Info(Mote_1).txt','r')
+    f2 = open('Error_Info(Mote_2).txt','r')
+    f3 = open('Error_Info(Mote_3).txt','r')
+    f4 = open('Error_Info(Mote_4).txt','r')
+    
+    Mote_1 = f1.read()
+    Mote_2 = f2.read()
+    Mote_3 = f3.read()
+    Mote_4 = f4.read()
+
+
+    
+    if (Msg1 != Mote_1) :
+        if Mote_1 == "UnConnect 10\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(앞바퀴)의 통신이 끊어졌습니다.')
+        elif Mote_1 == "Connect 10\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(앞바퀴)의 통신이 연결되었습니다.')
+
+    if (Msg2 != Mote_2) :
+        if Mote_2 == "UnConnect 11\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(뒷바퀴)의 통신이 끊어졌습니다.')
+        elif Mote_2 == "Connect 11\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(뒷바퀴)의 통신이 연결되었습니다.')
+
+    if (Msg3 != Mote_3) :
+        if Mote_3 == "UnConnect 12\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(핸들)의 통신이 끊어졌습니다.')
+        elif Mote_3 == "Connect 12\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(핸들)의 통신이 연결되었습니다.')
+
+    if (Msg4 != Mote_4) :
+        if Mote_4 == "UnConnect 13\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(안장)의 통신이 끊어졌습니다.')
+        elif Mote_4 == "Connect 13\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(안장)의 통신이 연결되었습니다.')
+
+    time.sleep(0.5)
+  
+
+    f1.close()
+    f2.close()
+    f3.close()
+    f4.close()
+
+
+def handler(bot, update):
+    text = update.message.text
+    chat_id = update.message.chat_id
+    
+    if '부품상태' in text:
+        
+        if Mote_1 == "UnConnect 10\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(앞바퀴)의 통신이 끊어져 있습니다.')
+        elif Mote_1 == "Connect 10\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(앞바퀴)의 통신이 연결되어 있습니다.')
+
+        if Mote_2 == "UnConnect 11\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(뒷바퀴)의 통신이 끊어져 있습니다.')
+        elif Mote_2 == "Connect 11\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(뒷바퀴)의 통신이 연결되어 있습니다.')
+
+        if Mote_3 == "UnConnect 12\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(핸들)의 통신이 끊어져 있습니다.')
+        elif Mote_3 == "Connect 12\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(핸들)의 통신이 연결되어 있습니다.')
+
+        if Mote_4 == "UnConnect 13\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(안장)의 통신이 끊어져 있습니다.')
+        elif Mote_4 == "Connect 13\n":
+            bot.sendMessage(chat_id=chat_id, text = '자전거(안장)의 통신이 연결되어 있습니다.')
+
+    else :
+        bot.send_message(chat_id=chat_id, text='Unknown Message')
+
+
+print('start')
+bot.sendMessage(chat_id=chat_id, text = '자전거 보안을 시작합니다.')
+echo_handler = MessageHandler(Filters.text, handler)
+dispatcher.add_handler(echo_handler)
+
+while 1:
+    Info()
+    echo_handler = MessageHandler(Filters.text, handler)
+    dispatcher.add_handler(echo_handler)

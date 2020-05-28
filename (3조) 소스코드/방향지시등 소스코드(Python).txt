@@ -1,0 +1,72 @@
+import RPi.GPIO as GPIO
+from time import sleep
+
+right_led = 4
+right_switch = 17
+left_led = 27
+left_switch = 22
+state = [False, False]
+lastButton=[False, False]
+currentButton=[False,False]
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(right_led,GPIO.OUT)
+GPIO.setup(left_led,GPIO.OUT)
+GPIO.setup(right_switch,GPIO.IN,GPIO.PUD_DOWN)
+GPIO.setup(left_switch,GPIO.IN,GPIO.PUD_DOWN)
+
+def debounce1(last1):
+	current1=GPIO.input(right_switch)
+	if(last1!=current1):
+		sleep(0.005)
+		current1=GPIO.input(right_switch)
+	return current1
+
+def debounce2(last2):
+	current2=GPIO.input(left_switch)
+	if(last2!=current2):
+		sleep(0.005)
+		current2=GPIO.input(left_switch)
+	return current2
+
+def turn_r_led():
+        currentButton[0]=debounce1(lastButton[0])
+        if lastButton[0]==False and currentButton[0]==True and state[1] == False:
+                state[0]= not state[0]
+        lastButton[0]=currentButton[0]
+        if state[0]==False:
+                GPIO.output(right_led,False)
+        return state[0]
+def turn_l_led():
+        currentButton[1]=debounce2(lastButton[1])
+        if lastButton[1]==False and currentButton[1]==True and state[0] == False:
+                state[1]= not state[1]
+        lastButton[1]=currentButton[1]
+        if state[1]==False:
+        	GPIO.output(left_led,False)
+        return state[1]
+
+try:
+	while True:
+                turn_r_led()
+                turn_l_led()
+                if state[0]==True:
+                        for i in range(100):
+                                GPIO.output(right_led,state[0])
+                                sleep(0.005)
+                                turn_r_led()
+                        for i in range(100):
+                                GPIO.output(right_led,False)
+                                sleep(0.005)
+                                turn_r_led()
+                if state[1]==True:
+                        for i in range(100):
+                                GPIO.output(left_led,state[1])
+                                sleep(0.005)
+                                turn_l_led()
+                        for i in range(100):
+                                GPIO.output(left_led,False)
+                                sleep(0.005)
+                                turn_l_led()
+except KeyboardInterrupt:
+	GPIO.cleanup()

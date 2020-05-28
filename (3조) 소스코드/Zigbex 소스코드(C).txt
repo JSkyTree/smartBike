@@ -1,0 +1,319 @@
+#include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define uint8_t unsigned char
+
+#define _CRT_SECURE_NO_WARNINGS
+
+BYTE buf[100];
+
+void data_in1()
+{
+	// 콘덴서 끄기
+	// 데이터 쓰기
+	buf[0]=0x7E;
+	buf[1]=0x44;
+	buf[2]=0x00;
+	buf[3]=0x00;
+	buf[4]=0xFF;
+	buf[5]=0xFF;
+	buf[6]=0xFF;
+	buf[7]=0xFF;
+	buf[8]=0x06;
+	buf[9]=0x00;
+	buf[10]=0x09;
+	buf[11]=0x3D;
+	buf[12]=0x02;
+	buf[13]=0x0E;
+	buf[14]=0x02;
+	buf[15]=0xFF;
+	buf[16]=0xFF;
+	buf[17]=0xC4;
+	buf[18]=0x75;
+	buf[19]=0X7E;
+}
+void data_in2()
+{
+	//콘덴서 켜기
+	// 데이터 쓰기
+	buf[0]=0x7E;
+	buf[1]=0x44;
+	buf[2]=0x00;
+	buf[3]=0x00;
+	buf[4]=0xFF;
+	buf[5]=0xFF;
+	buf[6]=0xFF;
+	buf[7]=0xFF;
+	buf[8]=0x04;
+	buf[9]=0x00;
+	buf[10]=0x09;
+	buf[11]=0x3D;
+	buf[12]=0x02;
+	buf[13]=0x0D;
+	buf[14]=0x00;
+	buf[15]=0x8E;
+	buf[16]=0x7D;
+	buf[17]=0x5E;
+	buf[18]=0X7E;
+}
+
+
+void err_quit(char *msg)
+{
+	LPVOID lpMsgBuf;
+	FormatMessage( 
+		FORMAT_MESSAGE_ALLOCATE_BUFFER|
+		FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, GetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, NULL);
+	MessageBox(NULL, (LPCTSTR)lpMsgBuf, msg, MB_ICONERROR);
+	LocalFree(lpMsgBuf);
+	exit(-1);
+}
+
+bool Save_Msg_1(char *Text)
+{
+	FILE *fp;
+
+	fp = fopen("C:\\Users\\admin\\Desktop\\JMS\\chat_bot\\Error_Info(Mote_1).txt", "wt");
+	if(fp == NULL){
+		return 1;
+	}
+	fprintf(fp, Text);
+	fclose(fp);
+}
+
+bool Save_Msg_2(char *Text)
+{
+	FILE *fp;
+
+	fp = fopen("C:\\Users\\admin\\Desktop\\JMS\\chat_bot\\Error_Info(Mote_2).txt", "wt");
+	if(fp == NULL){
+		return 1;
+	}
+	fprintf(fp, Text);
+	fclose(fp);
+}
+
+bool Save_Msg_3(char *Text)
+{
+	FILE *fp;
+
+	fp = fopen("C:\\Users\\admin\\Desktop\\JMS\\chat_bot\\Error_Info(Mote_3).txt", "wt");
+	if(fp == NULL){
+		return 1;
+	}
+	fprintf(fp, Text);
+	fclose(fp);
+}
+
+bool Save_Msg_4(char *Text)
+{
+	FILE *fp;
+
+	fp = fopen("C:\\Users\\admin\\Desktop\\JMS\\chat_bot\\Error_Info(Mote_4).txt", "wt");
+	if(fp == NULL){
+		return 1;
+	}
+	fprintf(fp, Text);
+	fclose(fp);
+}
+
+int main(int argc, char* argv[])
+{
+	// 포트 열기
+    HANDLE hComm = CreateFile("COM7", GENERIC_READ|GENERIC_WRITE,
+		0, NULL, OPEN_EXISTING, 0, NULL);
+
+	if(hComm == INVALID_HANDLE_VALUE) err_quit("CreateFile()");
+
+	// 포트 설정값 얻기
+	DCB dcb;
+	if(!GetCommState(hComm, &dcb)) err_quit("GetCommState()");
+
+	// 포트 설정값 변경
+	dcb.BaudRate = CBR_57600;
+	dcb.fParity = FALSE;
+	dcb.fNull = FALSE;
+	dcb.ByteSize = 8;
+	dcb.Parity = NOPARITY;
+	dcb.StopBits = ONESTOPBIT;
+	if(!SetCommState(hComm, &dcb)) err_quit("SetCommState()");
+
+	// 읽기와 쓰기 타임아웃 설정
+	COMMTIMEOUTS timeouts;
+	timeouts.ReadIntervalTimeout = 0;
+	timeouts.ReadTotalTimeoutMultiplier = 0;
+	timeouts.ReadTotalTimeoutConstant = 1000;
+	timeouts.WriteTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = 0;
+	if(!SetCommTimeouts(hComm, &timeouts)) err_quit("SetCommTimeouts()");
+
+	// 데이터 통신에 사용할 변수
+	uint8_t recv_Char;
+	// *버퍼 전역변수로 올림
+	DWORD BytesRead;
+	int retval, index=0;
+	char display;
+	int m_buf[100];
+	
+	// 모트 컨트롤 변수
+	int flag = 0, data_time=0, data_A= 0, cnt = 0, Motion_c=0, Msg_c=0;
+	int lite_on_c=0, buf_c=0, err_cnt[5]={0};
+
+	// 메세지 파일 초기화
+	Save_Msg_1("10 Start");
+	Save_Msg_2("11 Start");
+	Save_Msg_3("12 Start");
+	Save_Msg_4("13 Start");
+
+	// 클라이언트와 데이터 통신
+	while(1){
+
+	    // 데이터 받기
+	 	retval = ReadFile(hComm, &recv_Char, 1, &BytesRead, NULL);
+		
+		if(retval == 0)
+		{
+			err_quit("ReadFile()");
+		}
+				
+		m_buf[buf_c] = recv_Char;
+
+		//모듈 연결 확인	
+
+		if(m_buf[0] == 0xcc ||( m_buf[0] == 0x7E && m_buf[1] == 0x7E ))	err_cnt[4]++;
+		else if(m_buf[1] != NULL)		err_cnt[4] = 0;
+
+		if(err_cnt[4]>=10){
+			printf("UnConnect All\n");
+			Save_Msg_1("UnConnect 10\n");
+			Save_Msg_2("UnConnect 11\n");
+			Save_Msg_3("UnConnect 12\n");
+			Save_Msg_4("UnConnect 13\n");
+		}
+		// Save_Msg 초기화
+
+
+		//buf가 10일때
+		if(buf_c == 10)
+		{
+			//10번
+			if(m_buf[10] == 0x0a){
+				err_cnt[0]=0;
+				printf("Connect 10\n");
+				Save_Msg_1("Connect 10\n");
+			}
+			else if(err_cnt[0]<10 && m_buf[10] != 0x0a)
+			{
+				err_cnt[0]++;
+			}
+			else
+			{
+				printf("UnConnect 10\n");
+				Save_Msg_1("UnConnect 10\n");
+			}
+			//11번
+			if(m_buf[10] == 0x0b){
+				err_cnt[1]=0;
+				printf("Connect 11\n");
+				Save_Msg_2("Connect 11\n");
+			}
+			else if(err_cnt[1]<10 && m_buf[10] != 0x0b)	
+			{
+				err_cnt[1]++;
+			}
+			else
+			{
+				printf("UnConnect 11\n");
+				Save_Msg_2("UnConnect 11\n");
+			}
+			//12번
+			if(m_buf[10] == 0x0c){
+				err_cnt[2]=0;
+				printf("Connect 12\n");
+				Save_Msg_3("Connect 12\n");
+			}
+			else if(err_cnt[2]<10 && m_buf[10] != 0x0c)	
+			{
+				err_cnt[2]++;
+			}
+			else
+			{
+				printf("UnConnect 12\n");
+				Save_Msg_3("UnConnect 12\n");
+			}
+			//13번
+			if(m_buf[10] == 0x0d || m_buf[10] == 0x3d){
+				err_cnt[3]=0;
+				printf("Connect 13\n");
+				Save_Msg_4("Connect 13\n");
+			}
+			else if(err_cnt[3]<10 && m_buf[10] != 0x0d)
+			{
+				err_cnt[3]++;
+			}		
+			else
+			{
+				printf("UnConnect 13\n");
+				Save_Msg_4("UnConnect 13\n");
+			}
+			//움직임 감지
+			if(m_buf[10] == 0x3d)
+			{
+				data_time = 1;
+			}
+		}
+		//움직임 감지 LED
+		if(data_time == 1)
+		{
+			printf("On");
+			Motion_c=0;
+			data_in1();
+			retval=WriteFile(hComm, buf, 100, &BytesRead, NULL);
+			data_time = 2;
+		}
+		if(data_time == 2)
+		{
+			Motion_c++;
+			if(Motion_c>=100)
+			{
+				printf("clear");
+				data_time = 0;
+				Motion_c=0;
+				data_in2();
+				retval=WriteFile(hComm, buf, 100, &BytesRead, NULL);
+				
+			}
+		}
+
+		buf_c++;
+		if(recv_Char == 0x7E)
+		{
+			flag++;
+		}
+	
+		if( m_buf[0] == 0x7E && m_buf[1] == 0x7E)
+		{
+			flag=1;
+			buf_c=1;
+		}
+		else if(flag >= 2)
+		{	
+			printf("\n");
+			flag=0;
+			buf_c=0;
+			for(int i=0; i<20; i++)
+			{
+				m_buf[i]=NULL;
+			}
+		}
+	}
+			
+	// 포트 닫기
+	CloseHandle(hComm);
+
+	return 0;
+}
